@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import * as styles from "./timeselect.styles";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import BackButton from "../../../components/button/backButton";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { authState } from "../../../atoms/authState";
+import axios from "axios";
 
 interface TimeSlot {
   date: string;
@@ -11,12 +12,31 @@ interface TimeSlot {
   endTime: string;
 }
 
+const saveTokenToLocalStorage = (token: string) => {
+  localStorage.setItem("token", token);
+};
+
+const getTokenFromLocalStorage = () => {
+  return localStorage.getItem("token");
+};
+
 const TimeSelect = () => {
-  const { token } = useRecoilValue(authState);
+  const [auth, setAuth] = useRecoilState(authState);
+  const token = auth.token || getTokenFromLocalStorage();
   const location = useLocation();
   const username = location.state.key;
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+
+  useEffect(() => {
+    if (token) {
+      setAuth((prevAuth) => ({
+        ...prevAuth,
+        token,
+        isLoggedIn: true,
+      }));
+    }
+  }, [token, setAuth]);
 
   const handleTimeSlotClick = (timeSlot: string) => {
     setSelectedTimeSlot(timeSlot);
@@ -53,6 +73,73 @@ const TimeSelect = () => {
     });
   };
 
+  const handleSubmit = () => {
+    if (!selectedTimeSlot) {
+      console.error("No time slot selected");
+      return;
+    }
+  
+    // expected format: "토 2024.7.6 12:00 ~ 13:00"
+    const parts = selectedTimeSlot.split(" ");
+    console.log("Parts:", parts);
+  
+    if (parts.length < 7) {
+      console.error("Selected time slot format is incorrect");
+      return;
+    }
+  
+    const [dayOfWeek, year, month, day, startTime, tilde, endTime] = parts;
+  
+    const date = `${year}${month}${day}`; // combine year, month, and day
+  
+    const dateParts = date.split(".");
+    console.log("Date parts:", dateParts);
+  
+    if (dateParts.length < 3) {
+      console.error("Date format is incorrect");
+      return;
+    }
+  
+    const [yearPart, monthPart, dayPart] = dateParts.map(part => part.replace('.', ''));
+    console.log("Year:", yearPart, "Month:", monthPart, "Day:", dayPart);
+  
+    if (!yearPart || !monthPart || !dayPart) {
+      console.error("Date parts are missing");
+      return;
+    }
+  
+    const formattedDate = `${String(yearPart).padStart(4, '0')}-${String(monthPart).padStart(2, '0')}-${String(dayPart).padStart(2, '0')}`;
+    const mentorId = 1; // Example mentorId, adjust as needed
+  
+    const requestData = {
+      date: formattedDate,
+      start_time: startTime,
+      end_time: endTime,
+      mentor_id: mentorId,
+    };
+    console.log(requestData);
+    axios
+      .post("http://localhost:8080/api/v1/application", requestData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        console.log("Successfully submitted", response.data);
+      })
+      .catch((error) => {
+        console.error("Error submitting data", error);
+      });
+  };
+  
+  
+  
+  
+  
+  
+  
+
   return (
     <styles.Container>
       <styles.HeaderContainer>
@@ -71,12 +158,13 @@ const TimeSelect = () => {
             <styles.TimeSlotButton
               key={index}
               onClick={() => handleTimeSlotClick(timeSlot)}
-              isSelected={selectedTimeSlot === timeSlot}>
+              isSelected={selectedTimeSlot === timeSlot}
+            >
               {timeSlot}
             </styles.TimeSlotButton>
           ))}
         </styles.TimeSlotContainer>
-        <styles.ApplyButton>확인하기</styles.ApplyButton>
+        <styles.ApplyButton onClick={handleSubmit}>확인하기</styles.ApplyButton>
       </styles.BodyContainer>
     </styles.Container>
   );
