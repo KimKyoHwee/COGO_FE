@@ -76,7 +76,7 @@ function Main() {
   }, [auth.token]);
 
   const getMentorData = () => {
-    const url = `https://cogo.life/api/v1/mentor/${mentorCategory[activeButtons]}`;
+    const url = `http://localhost:8080/api/v1/mentor/${mentorCategory[activeButtons]}`;
 
     fetch(url, {
       method: "GET",
@@ -171,7 +171,7 @@ function Main() {
                 !mentorData ||
                 (Array.isArray(mentorData) && mentorData.length === 0)
                   ? "https://picsum.photos/250/250"
-                  : mentorData[currentIndex].picture.slice(1, -1)
+                  : mentorData[currentIndex].picture
               }
             />
             <styles.ImageButton

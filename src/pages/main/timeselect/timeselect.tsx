@@ -23,7 +23,7 @@ const TimeSelect = () => {
   };
 
   useEffect(() => {
-    const url = `https://cogo.life/api/v1/mentor/possibleDates/${username}`;
+    const url = `http://localhost:8080/api/v1/mentor/possibleDates/${username}`;
     fetch(url, {
       method: "GET",
       headers: {

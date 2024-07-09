@@ -46,9 +46,9 @@ function SignUp() {
 
   const getEmailLink = () => {
     if (domain === "@self") {
-      return `https://cogo.life/api/v1/email?email=${email}`;
+      return `http://localhost:8080/api/v1/email?email=${email}`;
     } else {
-      return `https://cogo.life/api/v1/email?email=${email}${domain}`;
+      return `http://localhost:8080/api/v1/email?email=${email}${domain}`;
     }
   };
 
@@ -65,6 +65,7 @@ function SignUp() {
         alert("이메일 전송 성공! 📨");
         const receivedCode = response.data;
         localStorage.setItem("authCode", receivedCode);
+        alert("이메일 전송이 완료되었습니다.")
       })
       .catch((error) => {
         console.error("Error: ", error);
@@ -82,7 +83,7 @@ function SignUp() {
   };
 
   const submitSignUp = () => {
-    const url = "https://cogo.life/api/v1/user/join/mentee";
+    const url = "http://localhost:8080/api/v1/user/join/mentee";
     const userData = {
       email: `${email}${domain}`,
       nickname: nickname,
