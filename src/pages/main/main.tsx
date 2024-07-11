@@ -171,7 +171,7 @@ function Main() {
                 !mentorData ||
                 (Array.isArray(mentorData) && mentorData.length === 0)
                   ? "https://picsum.photos/250/250"
-                  : mentorData[currentIndex].picture
+                  : mentorData[currentIndex].picture.slice(1, -1)
               }
             />
             <styles.ImageButton
