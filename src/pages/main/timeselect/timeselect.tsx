@@ -27,6 +27,7 @@ const TimeSelect = () => {
   const username = location.state.key;
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const navigate = useNavigate(); // useNavigate 훅을 함수 컴포넌트 내부에서 호출
 
   useEffect(() => {
     if (token) {
@@ -127,19 +128,14 @@ const TimeSelect = () => {
       })
       .then((response) => {
         console.log("Successfully submitted", response.data);
+        alert("커피챗이 성사됐어요! 메일을 확인해 주세요.");
+        navigate("/"); // 네비게이션 호출
       })
       .catch((error) => {
         console.error("Error submitting data", error);
       });
   };
   
-  
-  
-  
-  
-  
-  
-
   return (
     <styles.Container>
       <styles.HeaderContainer>
